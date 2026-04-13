@@ -23,6 +23,9 @@ import { Employee } from '../core/models';
       @if (error) {
         <p class="alert">{{ error }}</p>
       }
+      @if (loading) {
+        <p class="empty">Loading employee details...</p>
+      }
       @if (employee) {
         <section class="details-panel">
           @if (employee.profilePicture) {
@@ -76,6 +79,7 @@ export class EmployeeDetailsComponent implements OnInit {
 
   employee: Employee | null = null;
   error = '';
+  loading = false;
 
   ngOnInit(): void {
     void this.loadEmployee();
@@ -88,6 +92,9 @@ export class EmployeeDetailsComponent implements OnInit {
       return;
     }
 
+    this.loading = true;
+    this.error = '';
+
     try {
       this.employee = await this.api.employee(id);
       if (!this.employee) {
@@ -95,6 +102,8 @@ export class EmployeeDetailsComponent implements OnInit {
       }
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Cant load employee.';
+    } finally {
+      this.loading = false;
     }
   }
 

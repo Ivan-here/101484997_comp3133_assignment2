@@ -28,7 +28,7 @@ const employeeFields = `
 export class GraphqlService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
-  private readonly apiUrl = environment.graphqlUrl
+  private readonly apiUrl = environment.graphqlUrl;
   login(email: string, password: string): Promise<AuthPayload> {
     return this.request<{ login: AuthPayload }>(
       `mutation Login($email: String!, $password: String!) {
@@ -60,13 +60,24 @@ export class GraphqlService {
       filters,
     ).then((data) => data.employees);
   }
-  employee(id: string): Promise<Employee | null> {
-    return this.request<{ employee: Employee | null }>(
-      `query Employee($id: ID!) {
+  async employee(id: string): Promise<Employee | null> {
+    try {
+      const data = await this.request<{ employee: Employee | null }>(
+        `query Employee($id: ID!) {
         employee(id: $id) { ${employeeFields} }
       }`,
-      { id },
-    ).then((data) => data.employee);
+        { id },
+      );
+
+      if (data.employee) {
+        return data.employee;
+      }
+    } catch {
+      // The list query is the source used by the table, so use it as a fallback for details.
+    }
+
+    const employees = await this.employees();
+    return employees.find((employee) => employee.id === id) ?? null;
   }
   addEmployee(input: EmployeeInput): Promise<Employee> {
     return this.request<{ addEmployee: Employee }>(

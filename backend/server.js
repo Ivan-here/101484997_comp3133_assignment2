@@ -11,8 +11,6 @@ const mongoUri =
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-const sessions = new Map();
-
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, trim: true },
@@ -123,15 +121,17 @@ function publicUser(user) {
 
 function requireAuth(context) {
   const token = context.token;
-  if (!token || !sessions.has(token)) {
+  const userId = token?.match(/^token-([a-f\d]{24})-/i)?.[1];
+
+  if (!userId) {
     throw new Error("Authentication required.");
   }
-  return sessions.get(token);
+
+  return userId;
 }
 
 function createSession(user) {
   const token = `token-${user.id}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  sessions.set(token, user.id);
   return {
     token,
     user: publicUser(user),
