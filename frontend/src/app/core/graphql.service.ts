@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { AuthPayload, Employee, EmployeeInput } from './models';
 
@@ -27,7 +28,7 @@ const employeeFields = `
 export class GraphqlService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
-  private readonly apiUrl = 'https://101484997-comp3133-assignment2-back.vercel.app/graphql';
+  private readonly apiUrl = environment.graphqlUrl
   login(email: string, password: string): Promise<AuthPayload> {
     return this.request<{ login: AuthPayload }>(
       `mutation Login($email: String!, $password: String!) {
