@@ -27,7 +27,7 @@ const employeeFields = `
 export class GraphqlService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
-  private readonly apiUrl = 'https://101484997-comp3133-assignment2-back.vercel.app/';
+  private readonly apiUrl = 'https://101484997-comp3133-assignment2-back.vercel.app/graphql';
   login(email: string, password: string): Promise<AuthPayload> {
     return this.request<{ login: AuthPayload }>(
       `mutation Login($email: String!, $password: String!) {
