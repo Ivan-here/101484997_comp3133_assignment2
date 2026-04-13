@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { AuthPayload, Employee, EmployeeInput } from './models';
@@ -61,21 +61,6 @@ export class GraphqlService {
     ).then((data) => data.employees);
   }
   async employee(id: string): Promise<Employee | null> {
-    try {
-      const data = await this.request<{ employee: Employee | null }>(
-        `query Employee($id: ID!) {
-        employee(id: $id) { ${employeeFields} }
-      }`,
-        { id },
-      );
-
-      if (data.employee) {
-        return data.employee;
-      }
-    } catch {
-      // The list query is the source used by the table, so use it as a fallback for details.
-    }
-
     const employees = await this.employees();
     return employees.find((employee) => employee.id === id) ?? null;
   }
@@ -111,7 +96,9 @@ export class GraphqlService {
       headers = headers.set('Authorization', `Bearer ${this.auth.token}`);
     }
     const response = await firstValueFrom(
-      this.http.post<GraphQlResponse<T>>(this.apiUrl, { query, variables }, { headers }),
+      this.http
+        .post<GraphQlResponse<T>>(this.apiUrl, { query, variables }, { headers })
+        .pipe(timeout(15000)),
     ).catch((error: unknown) => {
       if (error instanceof HttpErrorResponse) {
         const graphQlErrors = (error.error as GraphQlResponse<T> | undefined)?.errors;
