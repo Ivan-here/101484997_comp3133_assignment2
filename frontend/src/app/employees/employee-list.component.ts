@@ -72,7 +72,7 @@ import { Employee } from '../core/models';
                 <td>{{ employee.dateOfJoining }}</td>
                 <td>
                   <div class="row-actions">
-                    <a [routerLink]="['/employees', employee.id]">View</a>
+                    <a [routerLink]="['/employees', employee.id]" [state]="{ employee }">View</a>
                     <a [routerLink]="['/employees', employee.id, 'edit']">Edit</a>
                     <button type="button" (click)="deleteEmployee(employee.id)">Delete</button>
                   </div>

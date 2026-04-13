@@ -92,6 +92,12 @@ export class EmployeeDetailsComponent implements OnInit {
       return;
     }
 
+    const stateEmployee = this.routeFromState(id);
+    if (stateEmployee) {
+      this.employee = stateEmployee;
+      return;
+    }
+
     this.loading = true;
     this.error = '';
 
@@ -109,5 +115,14 @@ export class EmployeeDetailsComponent implements OnInit {
 
   initials(employee: Employee): string {
     return `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`.toUpperCase();
+  }
+
+  private routeFromState(id: string): Employee | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    const employee = window.history.state?.employee as Employee | undefined;
+    return employee?.id === id ? employee : null;
   }
 }
